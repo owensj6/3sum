@@ -7,10 +7,12 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <pthread.h>
 
-int** threeSum(int* nums, int numsSize, int* returnSize, int** returnColumnSizes);
+int** threeSum(int* nums, int numsSize, int* returnSize, int printCombinationsFlag);
 void printSolution(int** returnedArrayOfSetsOfThree, int* returnSize, int** returnColumnSizes);
+void printSolutionToFile(int** returnedArrayOfSetsOfThree, int* returnSize, int** returnColumnSizes);
 long long comb(int n, int r);
 long long factorial(int n);
 
@@ -20,18 +22,26 @@ int main(int argc, char* argv[]) {
   int numsSize = sizeof(nums) / sizeof(nums[0]);
   int* returnSize = malloc(sizeof(int));
   int** returnColumnSizes = malloc(sizeof(int*));
+  int** returnedArrayOfSetsOfThree;
   printf("The number of elements you have entered is: %d\n", numsSize);
-  int** returnedArrayOfSetsOfThree = threeSum(nums, numsSize, returnSize, returnColumnSizes);
+  if (argc > 2 && strcmp(argv[2], "y") == 0)
+    returnedArrayOfSetsOfThree = threeSum(nums, numsSize, returnSize, 1);
+  else
+    returnedArrayOfSetsOfThree = threeSum(nums, numsSize, returnSize, 0);
   printf("Back from test function.\n");
   // Loop to print out tuples
-  printSolution(returnedArrayOfSetsOfThree, returnSize, returnColumnSizes);
+  if (argc > 1 && strcmp(argv[1], "print") == 0)
+    printSolution(returnedArrayOfSetsOfThree, returnSize, returnColumnSizes);
+  else if (argc > 1 && strcmp(argv[1], "print_to_file") == 0) {
+    printSolutionToFile(returnedArrayOfSetsOfThree, returnSize, returnColumnSizes);
+  }
   // Cleanup
   free(returnSize);
 
   return 0;
 }
 
-int** threeSum(int* nums, int numsSize, int* returnSize, int** returnColumnSizes) {
+int** threeSum(int* nums, int numsSize, int* returnSize, int printCombinationsFlag) {
   // R is the sample size you choose from the population. "n choose r".
   const int R = 3;
   int** ptr;
@@ -65,7 +75,8 @@ int** threeSum(int* nums, int numsSize, int* returnSize, int** returnColumnSizes
           ptr[iterator][2] = nums[j];
           ptr[iterator][3] = nums[k];
           ++iterator;
-          printf("[ %d, %d, %d ],\n", nums[i], nums[j], nums[k]);
+          if (printCombinationsFlag)
+            printf("[ %d, %d, %d ],\n", nums[i], nums[j], nums[k]);
         }
       }
     }
@@ -112,6 +123,24 @@ void printSolution(int** returnedArrayOfSetsOfThree, int* returnSize, int** retu
     else { printf("]\n"); }
   }
   printf("]\n");
+}
+
+void printSolutionToFile(int** returnedArrayOfSetsOfThree, int* returnSize, int** returnColumnSizes) {
+  int i, j;
+  FILE* out = fopen("solution.txt", "w");
+  fprintf(out, "A solution set is:\n[\n");
+  for (i = 0; i < *returnSize; i++) {
+    fprintf(out, "  [ ");
+    for (j = 0; j < 3; j++) {
+      fprintf(out, "%d", returnedArrayOfSetsOfThree[i][j]);
+      if (j < 2) { fprintf(out, ", "); }
+      else { fprintf(out, " "); }
+    }
+    if (i < *returnSize - 1) { fprintf(out, "],\n"); }
+    else { fprintf(out, "]\n"); }
+  }
+  fprintf(out, "]\n");
+  fclose(out);
 }
 
 long long comb(int n, int r) {
