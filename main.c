@@ -17,7 +17,6 @@ long long comb(int n, int r);
 long long factorial(int n);
 
 int main(int argc, char* argv[]) {
-  printf("Working program.\n");
   int nums[] = { -7, -4, 3, 9, 12, 14, 1, 11, -4 };
   int numsSize = sizeof(nums) / sizeof(nums[0]);
   int* returnSize = malloc(sizeof(int));
@@ -28,15 +27,18 @@ int main(int argc, char* argv[]) {
     returnedArrayOfSetsOfThree = threeSum(nums, numsSize, returnSize, 1);
   else
     returnedArrayOfSetsOfThree = threeSum(nums, numsSize, returnSize, 0);
-  printf("Back from test function.\n");
-  // Loop to print out tuples
+
+  // Print options
   if (argc > 1 && strcmp(argv[1], "print") == 0)
     printSolution(returnedArrayOfSetsOfThree, returnSize, returnColumnSizes);
   else if (argc > 1 && strcmp(argv[1], "print_to_file") == 0) {
     printSolutionToFile(returnedArrayOfSetsOfThree, returnSize, returnColumnSizes);
   }
   // Cleanup
+  for (int i = 0; i < *returnSize; ++i)
+    free(returnedArrayOfSetsOfThree[i]);
   free(returnSize);
+  free(returnedArrayOfSetsOfThree);
 
   return 0;
 }
